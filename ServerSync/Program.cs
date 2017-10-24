@@ -44,6 +44,8 @@ namespace ServerSync
 
 			// Экспортируем данные по указанным точкам учёта.
 
+			Console.WriteLine($"Экспорт данных по {config.MeasurePointNumbers.Length} точек учёта");
+
 			var exported = await sourceServer.Data.Export(config.MeasurePointNumbers, start, end,
 				  Lers.Data.DeviceDataType.Day
 				| Lers.Data.DeviceDataType.Hour
@@ -52,6 +54,9 @@ namespace ServerSync
 
 
 			// Импортируем данные на целевой сервер.
+
+			Console.WriteLine($"Импорт данных. Размер файла для импорта {exported.Length} байт");
+
 			var result = await targetServer.Data.Import(exported, false);
 
 			foreach (var mpResult in result)
@@ -65,6 +70,8 @@ namespace ServerSync
 					Console.WriteLine($"Успешно импортированы данные по точке учёта {mpResult.MeasurePointTitle} ({mpResult.IntervalList?.Length ?? 0} интервалов.)");
 				}
 			}
+
+			Console.WriteLine("Импорт данных успешно завершён");
 
 			appConfig.LastRun = DateTime.Today;
 
