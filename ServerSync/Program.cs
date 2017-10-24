@@ -55,9 +55,9 @@ namespace ServerSync
 
 			// Импортируем данные на целевой сервер.
 
-			Console.WriteLine($"Импорт данных. Размер файла для импорта {exported.Length} байт");
+			Console.WriteLine($"Импорт данных. Размер файла для импорта {exported.Length} байт. Таймаут {config.ImportTimeout} сек.");
 
-			var result = await targetServer.Data.Import(exported, false);
+			var result = await targetServer.Data.Import(exported, false, config.ImportTimeout);
 
 			foreach (var mpResult in result)
 			{

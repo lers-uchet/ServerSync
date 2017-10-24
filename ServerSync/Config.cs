@@ -19,6 +19,11 @@
 		/// Список номеров точек учёта, по которым должна проводиться синхронизация.
 		/// </summary>
 		public int[] MeasurePointNumbers { get; set; }
+
+		/// <summary>
+		/// Таймаут на импорт данных (в секундах). По умолчанию 1 час.
+		/// </summary>
+		public int ImportTimeout { get; set; } = 3600;
 	}
 
 
