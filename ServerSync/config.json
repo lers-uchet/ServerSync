@@ -1,0 +1,21 @@
+﻿{
+    "SourceServer": {
+        "Address": "localhost",
+        "Port" :  10000,
+        "Login": "admin",
+        "Password": "admin"
+    },
+
+    "TargetServer": {
+        "Address": "localhost",
+        "Port":  10001,
+        "Login": "admin",
+        "Password": "admin"
+    },
+
+    "MeasurePointNumbers": [
+        1,
+        2,
+        3
+    ]
+}
