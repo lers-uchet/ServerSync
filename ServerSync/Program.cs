@@ -21,8 +21,16 @@ namespace ServerSync
 
 		static async Task MainAsync()
 		{
-			string appConfigFileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-				"LERS", "ServerSync.Data.json");
+			string appConfigDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "LERS");
+
+			// Убедимся что папка, куда будут сохранены конфигурационные файлы, существует. Если её нет, создадим.
+
+			if (!Directory.Exists(appConfigDir))
+			{
+				Directory.CreateDirectory(appConfigDir);
+			}
+
+			string appConfigFileName = Path.Combine(appConfigDir, "ServerSync.Data.json");
 
 			var config = LoadConfig("config.json");
 
