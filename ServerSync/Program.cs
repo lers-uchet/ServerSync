@@ -52,7 +52,7 @@ namespace ServerSync
 
 			// Экспортируем данные по указанным точкам учёта.
 
-			Console.WriteLine($"Экспорт данных по {config.MeasurePointNumbers.Length} точек учёта");
+			Console.WriteLine($"Экспорт данных по {config.MeasurePointNumbers.Length} точек учёта за интервал {start} - {end}");
 
 			var exported = await sourceServer.Data.Export(config.MeasurePointNumbers, start, end,
 				  Lers.Data.DeviceDataType.Day
