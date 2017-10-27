@@ -7,6 +7,15 @@ namespace ServerSync
 {
 	class Program
 	{
+		/// <summary>
+		/// Объект для протоколирования.
+		/// </summary>
+		private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+
+		/// <summary>
+		/// Точка входа в приложение.
+		/// </summary>
+		/// <param name="args"></param>
 		static void Main(string[] args)
 		{
 			try
@@ -15,24 +24,36 @@ namespace ServerSync
 			}
 			catch (AggregateException exc)
 			{
-				Console.WriteLine($"Ошибка сихронизации серверов. {exc.InnerException.Message}");
+				logger.Error(exc.InnerException, $"Ошибка сихронизации серверов.");
 			}
 		}
 
+		/// <summary>
+		/// Асинхронная точка входа.
+		/// </summary>
+		/// <returns></returns>
 		static async Task MainAsync()
 		{
+			logger.Info("==================================\r\n===== Запущена синхронизация данных между серверами ЛЭРС УЧЁТ...\r\n==================================");
+
 			string appConfigDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "LERS");
 
 			// Убедимся что папка, куда будут сохранены конфигурационные файлы, существует. Если её нет, создадим.
 
 			if (!Directory.Exists(appConfigDir))
 			{
+				logger.Debug($"Создаётся папка {appConfigDir}");
+
 				Directory.CreateDirectory(appConfigDir);
 			}
 
 			string appConfigFileName = Path.Combine(appConfigDir, "ServerSync.Data.json");
 
+			logger.Debug($"Загрузка конфигурации...");
+
 			var config = LoadConfig("config.json");
+
+			logger.Debug($"Загрузка последних параметров из файла {appConfigFileName}");
 
 			var appConfig = LoadAppConfig(appConfigFileName);
 
@@ -52,7 +73,7 @@ namespace ServerSync
 
 			// Экспортируем данные по указанным точкам учёта.
 
-			Console.WriteLine($"Экспорт данных по {config.MeasurePointNumbers.Length} точек учёта за интервал {start} - {end}");
+			logger.Info($"Экспорт данных по {config.MeasurePointNumbers.Length} точек учёта за интервал {start} - {end}");
 
 			var exported = await sourceServer.Data.Export(config.MeasurePointNumbers, start, end,
 				  Lers.Data.DeviceDataType.Day
@@ -63,7 +84,7 @@ namespace ServerSync
 
 			// Импортируем данные на целевой сервер.
 
-			Console.WriteLine($"Импорт данных. Размер файла для импорта {exported.Length} байт. Таймаут {config.ImportTimeout} сек.");
+			logger.Info($"Импорт данных. Размер файла для импорта {exported.Length} байт. Таймаут {config.ImportTimeout} сек.");
 
 			var result = await targetServer.Data.Import(exported, false, config.ImportTimeout);
 
@@ -71,15 +92,15 @@ namespace ServerSync
 			{
 				if (mpResult.IsError)
 				{
-					Console.WriteLine($"Ошибка импорта данных по точке учёта {mpResult.MeasurePointTitle}. {mpResult.ErrorMessage}");
+					logger.Warn($"Ошибка импорта данных по точке учёта {mpResult.MeasurePointTitle}. {mpResult.ErrorMessage}");
 				}
 				else
 				{
-					Console.WriteLine($"Успешно импортированы данные по точке учёта {mpResult.MeasurePointTitle} ({mpResult.IntervalList?.Length ?? 0} интервалов.)");
+					logger.Info($"Успешно импортированы данные по точке учёта {mpResult.MeasurePointTitle} ({mpResult.IntervalList?.Length ?? 0} интервалов.)");
 				}
 			}
 
-			Console.WriteLine("Импорт данных успешно завершён");
+			logger.Info("Импорт данных успешно завершён");
 
 			appConfig.LastRun = DateTime.Today;
 
@@ -93,6 +114,8 @@ namespace ServerSync
 		/// <returns></returns>
 		private static LersServer ConnectServer(ServerConfig serverConfig)
 		{
+			logger.Info($"Подключение к серверу {serverConfig.Address}:{serverConfig.Port}");
+
 			var server = new LersServer("Утилита синхронизации данных по точкам учёта.");
 
 			// Игнорируем разницу в версиях.
