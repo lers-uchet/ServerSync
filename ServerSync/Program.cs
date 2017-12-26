@@ -88,7 +88,7 @@ namespace ServerSync
 
 			var result = await targetServer.Data.Import(exported, false, config.ImportTimeout);
 
-			foreach (var mpResult in result)
+			foreach (var mpResult in result.MeasurePointResultList)
 			{
 				if (mpResult.IsError)
 				{
